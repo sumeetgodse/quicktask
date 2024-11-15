@@ -14,18 +14,18 @@ void main() async {
   await Parse().initialize(keyApplicationId!, keyParseServerUrl,
       clientKey: keyClientKey, autoSendSessionId: true);
 
-  runApp(const MaterialApp(home: TodoApp()));
+  runApp(const MaterialApp(home: QuickTaskApp()));
 }
 
-class TodoApp extends StatefulWidget {
-  const TodoApp({super.key});
+class QuickTaskApp extends StatefulWidget {
+  const QuickTaskApp({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _TodoAppState createState() => _TodoAppState();
+  _QuickTaskAppState createState() => _QuickTaskAppState();
 }
 
-class _TodoAppState extends State<TodoApp> {
+class _QuickTaskAppState extends State<QuickTaskApp> {
   List<ParseObject> tasks = [];
   TextEditingController taskController = TextEditingController();
   TextEditingController dueDateController = TextEditingController();
@@ -33,7 +33,7 @@ class _TodoAppState extends State<TodoApp> {
   @override
   void initState() {
     super.initState();
-    getTodo();
+    getTasks();
   }
 
   @override
@@ -103,7 +103,7 @@ class _TodoAppState extends State<TodoApp> {
           ),
           const SizedBox(width: 10),
           ElevatedButton(
-            onPressed: addTodo,
+            onPressed: addTask,
             style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
                 foregroundColor: WidgetStateProperty.all<Color>(Colors.white)),
@@ -118,10 +118,10 @@ class _TodoAppState extends State<TodoApp> {
     return ListView.builder(
       itemCount: tasks.length,
       itemBuilder: (context, index) {
-        final varTodo = tasks[index];
-        final varTitle = varTodo.get('title') ?? '';
-        final varDueDate = varTodo.get('dueDate') ?? '';
-        bool done = varTodo.get<bool>('done') ?? false;
+        final varTask = tasks[index];
+        final varTitle = varTask.get('title') ?? '';
+        final varDueDate = varTask.get('dueDate') ?? '';
+        bool done = varTask.get<bool>('done') ?? false;
 
         return ListTile(
           title: Row(
@@ -129,7 +129,7 @@ class _TodoAppState extends State<TodoApp> {
               Checkbox(
                 value: done,
                 onChanged: (newValue) {
-                  updateTodo(index, newValue!, varTitle, varDueDate);
+                  updateTask(index, newValue!, varTitle, varDueDate);
                 },
               ),
               Expanded(child: Text(varTitle)),
@@ -140,7 +140,7 @@ class _TodoAppState extends State<TodoApp> {
             icon:
                 const Icon(Icons.delete, color: Color.fromARGB(255, 255, 0, 0)),
             onPressed: () {
-              deleteTodo(index, varTodo.objectId!);
+              deleteTask(index, varTask.objectId!);
             },
           ),
         );
@@ -148,20 +148,20 @@ class _TodoAppState extends State<TodoApp> {
     );
   }
 
-  Future<void> addTodo() async {
+  Future<void> addTask() async {
     String task = taskController.text.trim();
     String dueDate = dueDateController.text.trim();
     if (task.isNotEmpty && dueDate.isNotEmpty) {
-      var todo = ParseObject('Todo')
+      var newTask = ParseObject('Task')
         ..set('title', task)
         ..set('dueDate', dueDate)
         ..set('done', false);
 
-      var response = await todo.save();
+      var response = await newTask.save();
 
       if (response.success) {
         setState(() {
-          tasks.add(todo);
+          tasks.add(newTask);
         });
         taskController.clear();
         dueDateController.clear();
@@ -171,30 +171,30 @@ class _TodoAppState extends State<TodoApp> {
     }
   }
 
-  Future<void> updateTodo(
+  Future<void> updateTask(
       int index, bool done, String varTitle, String varDueDate) async {
-    final varTodo = tasks[index];
-    final String id = varTodo.objectId.toString();
+    final varTask = tasks[index];
+    final String id = varTask.objectId.toString();
 
-    var todo = ParseObject('Todo')
+    var updatedTask = ParseObject('Task')
       ..objectId = id
       ..set('title', varTitle)
       ..set('dueDate', varDueDate)
       ..set('done', done);
 
-    var response = await todo.save();
+    var response = await updatedTask.save();
 
     if (response.success) {
       setState(() {
-        tasks[index] = todo;
+        tasks[index] = updatedTask;
       });
     } else {
       // Handle error
     }
   }
 
-  Future<void> getTodo() async {
-    var queryBuilder = QueryBuilder<ParseObject>(ParseObject('Todo'));
+  Future<void> getTasks() async {
+    var queryBuilder = QueryBuilder<ParseObject>(ParseObject('Task'));
     var apiResponse = await queryBuilder.query();
 
     if (apiResponse.success && apiResponse.results != null) {
@@ -206,9 +206,9 @@ class _TodoAppState extends State<TodoApp> {
     }
   }
 
-  Future<void> deleteTodo(int index, String id) async {
-    var todo = ParseObject('Todo')..objectId = id;
-    var response = await todo.delete();
+  Future<void> deleteTask(int index, String id) async {
+    var deletedTask = ParseObject('Task')..objectId = id;
+    var response = await deletedTask.delete();
 
     if (response.success) {
       setState(() {
