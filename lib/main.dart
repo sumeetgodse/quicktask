@@ -6,7 +6,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: "lib/.env");
-  
+
   var keyApplicationId = dotenv.env['B4A_APPLICATION_ID'];
   var keyClientKey = dotenv.env['B4A_CLIENT_KEY'];
   const keyParseServerUrl = 'https://parseapi.back4app.com';
@@ -28,6 +28,7 @@ class TodoApp extends StatefulWidget {
 class _TodoAppState extends State<TodoApp> {
   List<ParseObject> tasks = [];
   TextEditingController taskController = TextEditingController();
+  TextEditingController dueDateController = TextEditingController();
 
   @override
   void initState() {
@@ -75,7 +76,22 @@ class _TodoAppState extends State<TodoApp> {
             child: TextField(
               controller: taskController,
               decoration: InputDecoration(
-                hintText: 'Enter task',
+                hintText: 'Task',
+                filled: true,
+                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: dueDateController,
+              decoration: InputDecoration(
+                hintText: 'Due Date',
                 filled: true,
                 fillColor: Colors.grey[200],
                 border: OutlineInputBorder(
@@ -89,9 +105,8 @@ class _TodoAppState extends State<TodoApp> {
           ElevatedButton(
             onPressed: addTodo,
             style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
-                foregroundColor:
-                    WidgetStateProperty.all<Color>(Colors.white)),
+                backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
+                foregroundColor: WidgetStateProperty.all<Color>(Colors.white)),
             child: const Text('Add'),
           ),
         ],
@@ -105,6 +120,7 @@ class _TodoAppState extends State<TodoApp> {
       itemBuilder: (context, index) {
         final varTodo = tasks[index];
         final varTitle = varTodo.get('title') ?? '';
+        final varDueDate = varTodo.get('dueDate') ?? '';
         bool done = varTodo.get<bool>('done') ?? false;
 
         return ListTile(
@@ -113,14 +129,16 @@ class _TodoAppState extends State<TodoApp> {
               Checkbox(
                 value: done,
                 onChanged: (newValue) {
-                  updateTodo(index, newValue!);
+                  updateTodo(index, newValue!, varTitle, varDueDate);
                 },
               ),
               Expanded(child: Text(varTitle)),
+              Expanded(child: Text(varDueDate)),
             ],
           ),
           trailing: IconButton(
-            icon: const Icon(Icons.delete,color: Color.fromARGB(255, 255, 0, 0)),
+            icon:
+                const Icon(Icons.delete, color: Color.fromARGB(255, 255, 0, 0)),
             onPressed: () {
               deleteTodo(index, varTodo.objectId!);
             },
@@ -132,9 +150,11 @@ class _TodoAppState extends State<TodoApp> {
 
   Future<void> addTodo() async {
     String task = taskController.text.trim();
-    if (task.isNotEmpty) {
+    String dueDate = dueDateController.text.trim();
+    if (task.isNotEmpty && dueDate.isNotEmpty) {
       var todo = ParseObject('Todo')
         ..set('title', task)
+        ..set('dueDate', dueDate)
         ..set('done', false);
 
       var response = await todo.save();
@@ -144,18 +164,22 @@ class _TodoAppState extends State<TodoApp> {
           tasks.add(todo);
         });
         taskController.clear();
+        dueDateController.clear();
       } else {
         // Handle error
       }
     }
   }
 
-  Future<void> updateTodo(int index, bool done) async {
+  Future<void> updateTodo(
+      int index, bool done, String varTitle, String varDueDate) async {
     final varTodo = tasks[index];
     final String id = varTodo.objectId.toString();
 
     var todo = ParseObject('Todo')
       ..objectId = id
+      ..set('title', varTitle)
+      ..set('dueDate', varDueDate)
       ..set('done', done);
 
     var response = await todo.save();
