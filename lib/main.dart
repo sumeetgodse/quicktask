@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:quicktask/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +15,9 @@ void main() async {
   await Parse().initialize(keyApplicationId!, keyParseServerUrl,
       clientKey: keyClientKey, autoSendSessionId: true);
 
-  runApp(const MaterialApp(home: QuickTaskApp()));
+  Widget initialScreen = LoginPage();
+
+  runApp(MaterialApp(home: initialScreen));
 }
 
 class QuickTaskApp extends StatefulWidget {
@@ -48,8 +51,13 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
               AppBarTheme(backgroundColor: Color.fromARGB(255, 255, 197, 38))),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('QuickTask'),
-        ),
+            title: const Text('QuickTask',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 0, 0, 0))),
+            backgroundColor: Color.fromARGB(255, 255, 197, 38),
+            centerTitle: true),
         body: Container(
           decoration: BoxDecoration(
             border: Border.all(color: const Color.fromARGB(255, 255, 255, 255)),
@@ -151,7 +159,21 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
   Future<void> addTask() async {
     String task = taskController.text.trim();
     String dueDate = dueDateController.text.trim();
-    if (task.isNotEmpty && dueDate.isNotEmpty) {
+    if (task.isEmpty || dueDate.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Please enter ${task.isEmpty ? 'Task!' : 'Due Date!'}'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } else {
       var newTask = ParseObject('Task')
         ..set('title', task)
         ..set('dueDate', dueDate)
@@ -165,8 +187,6 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
         });
         taskController.clear();
         dueDateController.clear();
-      } else {
-        // Handle error
       }
     }
   }
@@ -188,8 +208,6 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
       setState(() {
         tasks[index] = updatedTask;
       });
-    } else {
-      // Handle error
     }
   }
 
@@ -201,8 +219,6 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
       setState(() {
         tasks = apiResponse.results as List<ParseObject>;
       });
-    } else {
-      // Handle error
     }
   }
 
@@ -214,8 +230,6 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
       setState(() {
         tasks.removeAt(index);
       });
-    } else {
-      // Handle error
     }
   }
 }
