@@ -31,7 +31,9 @@ class QuickTaskApp extends StatefulWidget {
 class _QuickTaskAppState extends State<QuickTaskApp> {
   List<ParseObject> tasks = [];
   TextEditingController taskController = TextEditingController();
+  TextEditingController editTaskController = TextEditingController();
   TextEditingController dueDateController = TextEditingController();
+  TextEditingController editDueDateController = TextEditingController();
 
   @override
   void initState() {
@@ -144,14 +146,84 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
               ),
               Expanded(child: Text(varTitle)),
               Expanded(child: Text(varDueDate)),
+              IconButton(
+                icon: const Icon(Icons.edit,
+                    color: Color.fromARGB(255, 0, 162, 255)),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Edit Task'),
+                      content: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          TextField(
+                            controller: editTaskController..text = varTitle,
+                            decoration: InputDecoration(
+                              hintText: varTitle,
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          TextField(
+                            controller: editDueDateController
+                              ..text = varDueDate,
+                            decoration: InputDecoration(
+                              hintText: varDueDate,
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            editTask(
+                                context,
+                                index,
+                                done,
+                                editTaskController.text.trim(),
+                                editDueDateController.text.trim());
+                          },
+                          child: Text('Save',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 0, 170, 0))),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text('Cancel',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 223, 2, 2))),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete,
+                    color: Color.fromARGB(255, 255, 0, 0)),
+                onPressed: () {
+                  deleteTask(index, varTask.objectId!);
+                },
+              ),
             ],
-          ),
-          trailing: IconButton(
-            icon:
-                const Icon(Icons.delete, color: Color.fromARGB(255, 255, 0, 0)),
-            onPressed: () {
-              deleteTask(index, varTask.objectId!);
-            },
           ),
         );
       },
@@ -210,6 +282,27 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
       setState(() {
         tasks[index] = updatedTask;
       });
+    }
+  }
+
+  Future<void> editTask(
+      context, int index, bool done, String varTitle, String varDueDate) async {
+    final varTask = tasks[index];
+    final String id = varTask.objectId.toString();
+
+    var updatedTask = ParseObject('Task')
+      ..objectId = id
+      ..set('title', varTitle)
+      ..set('dueDate', varDueDate)
+      ..set('done', done);
+
+    var response = await updatedTask.save();
+
+    if (response.success) {
+      setState(() {
+        tasks[index] = updatedTask;
+      });
+      Navigator.of(context).pop();
     }
   }
 
