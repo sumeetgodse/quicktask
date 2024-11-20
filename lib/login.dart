@@ -14,9 +14,6 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _loginUser() async {
     try {
-      final TextEditingController _usernameController = TextEditingController();
-      final TextEditingController _passwordController = TextEditingController();
-
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => QuickTaskApp()));
     } catch (e) {

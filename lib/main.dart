@@ -78,44 +78,46 @@ class _QuickTaskAppState extends State<QuickTaskApp> {
   Widget _buildTaskInput() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: TextField(
-              controller: taskController,
-              decoration: InputDecoration(
-                hintText: 'Task',
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
+          TextField(
+            controller: taskController,
+            decoration: InputDecoration(
+              hintText: 'Task',
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: dueDateController,
-              decoration: InputDecoration(
-                hintText: 'Due Date',
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+            controller: dueDateController,
+            decoration: InputDecoration(
+              hintText: 'Due Date',
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(
+            height: 10,
+          ),
           ElevatedButton(
             onPressed: addTask,
             style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
                 foregroundColor: WidgetStateProperty.all<Color>(Colors.white)),
-            child: const Text('Add'),
+            child: const Text('Add Task'),
           ),
         ],
       ),
