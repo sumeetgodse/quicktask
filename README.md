@@ -8,10 +8,17 @@ This project introduces me to Flutter and Back4App by building a basic task mana
 
 ### Features
 
-- User Authentication (Login & Registration using Back4App)
-- Task Management (Add, Edit, View, Delete)
-- Task Status Toggle (Mark Task as Complete/Incomplete)
-- Error Handling for User Authentication & Task Management
+- User Authentication (Login & Registration using Back4App). Allows users to signup and login to the app securely.
+- Task Management (Add, Edit, View, Delete). Each task has a title, done and due-date properties.
+- Task Status Toggle (Mark Task as Complete/Incomplete). Checkbox provided to toggle status.
+- Edit Task (Can edit already saved task)
+- Styling and other UI UX Enhancements also done.
+- Error handling for authentication and CRUD data management.
+
+### Project Structure
+
+- Frontend : Flutter
+- Backend : Back4App
 
 ### Run locally
 
