@@ -1,4 +1,4 @@
-# QuickTask
+# QuickTask [Click here for YouTube Video](https://youtu.be/7VQwwOUpu1M?si=ejIyqkUAFvxXQpDX)
 
 ### Objective
 
